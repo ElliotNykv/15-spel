@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -7,7 +8,7 @@ public class Gui extends JFrame {
   List <JButton> buttonList = createButtons();
   private static final int gridSize = 4;
   private static final int allBtns = gridSize * gridSize;
-
+  private boolean gameWon = false;
 
   JButton newGameBtn = new JButton("Nytt spel");
   JLabel winText = new JLabel("Grattis, du vann!");
@@ -17,19 +18,40 @@ public class Gui extends JFrame {
 
     for (int i = 0; i < allBtns; i++) {
       if (i == allBtns - 1) {
-        JButton button = new JButton("");
+        JButton button = new JButton();
         buttonList.add(button);
       } else {
         JButton button = new JButton(String.valueOf(i + 1));
         buttonList.add(button);
+        button.addActionListener(e -> gameMovement(e));
+
       }
     }
     return buttonList;
   }
 
- /* public gameLogic() {
+  private void gameMovement(ActionEvent e) {
 
-  } */
+    JButton clickedButton = (JButton) e.getSource();
+    int clickedIndex = buttonList.indexOf(clickedButton);
+    int emptyIndex = buttonList.size();
+
+    for (int i = 0; i < buttonList.size(); i++) {
+      if (buttonList.get(i).getText().isEmpty()) {
+        emptyIndex = i;
+        break;
+      }
+    }
+
+    if ((clickedIndex == emptyIndex - 1) || (clickedIndex == emptyIndex + 1) ||
+            (clickedIndex == emptyIndex - 4) || (clickedIndex == emptyIndex + 4)) {
+      buttonList.get(emptyIndex).setText(clickedButton.getText());
+      clickedButton.setText("");
+    }
+  }
+
+
+
 
   public Gui() {
     this.setLayout(new BorderLayout());

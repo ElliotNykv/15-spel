@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Gui extends JFrame {
-  List <JButton> buttonList = createButtons();
+  List<JButton> buttonList = createButtons();
   private static final int gridSize = 4;
   private static final int allBtns = gridSize * gridSize;
 
@@ -42,11 +42,10 @@ public class Gui extends JFrame {
     return gamePanel;
   }
 
-
   private void gameMovement(ActionEvent e) {
     JButton clickedButton = (JButton) e.getSource();
     int clickedIndex = buttonList.indexOf(clickedButton);
-    int emptyIndex = buttonList.size();
+    int emptyIndex = buttonList.size() - 1;
 
     for (int i = 0; i < buttonList.size(); i++) {
       if (buttonList.get(i).getText().isEmpty()) {
@@ -55,28 +54,25 @@ public class Gui extends JFrame {
       }
     }
 
-    if ((clickedIndex == emptyIndex - 1) || (clickedIndex == emptyIndex + 1) ||
+    if ((clickedIndex == emptyIndex - 1 && emptyIndex % gridSize != 0) ||
+            (clickedIndex == emptyIndex + 1 && clickedIndex % gridSize != 0) ||
             (clickedIndex == emptyIndex - gridSize) || (clickedIndex == emptyIndex + gridSize)) {
       buttonList.get(emptyIndex).setText(clickedButton.getText());
-
       clickedButton.setText("");
       checkGameOrder();
     }
   }
 
   private void checkGameOrder() {
-    winText.setVisible(false);
     for (int i = 0; i < buttonList.size() - 1; i++) {
       String buttonText = buttonList.get(i).getText();
-      if (buttonText.isEmpty()) {
-        continue;
-      }
-      if (Integer.parseInt(buttonText) != i + 1) {
+      if (buttonText.isEmpty() || Integer.parseInt(buttonText) != i + 1) {
         return;
       }
     }
-
-    checkGameWon(true);
+    if (buttonList.getLast().getText().isEmpty()) {
+      checkGameWon(true);
+    }
   }
 
   public void checkGameWon(boolean value) {
@@ -85,12 +81,32 @@ public class Gui extends JFrame {
 
   private void shuffleBoard() {
     if (buttonList.size() > 1) {
-      List<JButton> nonEmptyButtons = buttonList.subList(0, buttonList.size() - 1);
-      Collections.shuffle(nonEmptyButtons);
 
+      setWinningOrder();
+
+      List<Integer> numbers = new ArrayList<>();
+      for (int i = 1; i < allBtns; i++) {
+        numbers.add(Integer.valueOf(i));
+      }
+
+      Collections.shuffle(numbers);
+
+
+      for (int i = 0; i < buttonList.size() - 1; i++) {
+        buttonList.get(i).setText(String.valueOf(numbers.get(i)));
+      }
       buttonList.getLast().setText("");
     }
   }
+
+  private void setWinningOrder() {
+    for (int i = 0; i < buttonList.size() - 1; i++) {
+      buttonList.get(i).setText(String.valueOf(i + 1));
+    }
+    buttonList.getLast().setText("");
+  }
+
+
 
   private void startOrder() {
     for (int i = 0; i < buttonList.size() - 1; i++) {
@@ -99,15 +115,11 @@ public class Gui extends JFrame {
 
     buttonList.get(buttonList.size() - 6).setText("");
     buttonList.get(buttonList.size() - 2).setText("11");
-    buttonList.get(buttonList.size() - 1).setText("14");
-
+    buttonList.getLast().setText("15");
   }
-
-
 
   private void newGame(ActionEvent e) {
     checkGameWon(false);
-
     shuffleBoard();
 
     gamePanel.removeAll(); // Remove all components from the panel
@@ -116,18 +128,11 @@ public class Gui extends JFrame {
     }
 
     this.add(gamePanel, BorderLayout.CENTER);
-
-
     this.revalidate();
     this.repaint();
   }
 
-
-
-
-
   public Gui() {
-
     this.setLayout(new BorderLayout());
 
     startOrder();
@@ -145,10 +150,9 @@ public class Gui extends JFrame {
     this.add(EastPanel, BorderLayout.EAST);
     this.add(gamePanel, BorderLayout.CENTER);
 
-
     this.pack();
     this.setLocationRelativeTo(null);
-    this.setVisible(true); // Should be called after all components are added
+    this.setVisible(true);
     this.setDefaultCloseOperation(EXIT_ON_CLOSE);
   }
 }

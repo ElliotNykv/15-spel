@@ -84,7 +84,10 @@ public class Gui extends JFrame {
 
   private void shuffleBoard() {
     if (buttonList.size() > 1) {
-      Collections.shuffle(buttonList.subList(0, buttonList.size() - 1));
+      List<JButton> nonEmptyButtons = buttonList.subList(0, buttonList.size() - 1);
+      Collections.shuffle(nonEmptyButtons);
+
+      buttonList.getLast().setText("");
     }
   }
 

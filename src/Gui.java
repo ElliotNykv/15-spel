@@ -12,43 +12,38 @@ public class Gui extends JFrame {
 
   JButton newGameBtn = new JButton("Nytt spel");
   JLabel winText = new JLabel("Grattis, du vann!");
+  JPanel gamePanel;
 
   public List<JButton> createButtons() {
     List<JButton> buttonList = new ArrayList<>();
 
     for (int i = 0; i < allBtns; i++) {
+      JButton button;
       if (i == allBtns - 1) {
-        JButton button = new JButton();
-        buttonList.add(button);
-        button.addActionListener(this::gameMovement);
+        button = new JButton();
+        button.setText("");
       } else {
-        JButton button = new JButton(String.valueOf(i + 1));
-        buttonList.add(button);
-        button.addActionListener(this::gameMovement);
-
+        button = new JButton(String.valueOf(i + 1));
       }
+      button.addActionListener(this::gameMovement);
+      buttonList.add(button);
     }
     return buttonList;
   }
 
   public JPanel createGameBoard() {
-    JPanel gamePanel = new JPanel(new GridLayout(4, 4));
-    List<JButton> buttonListCopy = new ArrayList<>(buttonList);
-    if (buttonListCopy.size() > 1) {
-      Collections.shuffle(buttonListCopy.subList(0, buttonListCopy.size() - 1));
-    }
+    gamePanel = new JPanel(new GridLayout(gridSize, gridSize));
+    shuffleBoard();
 
     for (JButton button : buttonList) {
       button.setPreferredSize(new Dimension(100, 100));
       gamePanel.add(button);
     }
     return gamePanel;
-
   }
 
 
   private void gameMovement(ActionEvent e) {
-
     JButton clickedButton = (JButton) e.getSource();
     int clickedIndex = buttonList.indexOf(clickedButton);
     int emptyIndex = buttonList.size();
@@ -62,7 +57,6 @@ public class Gui extends JFrame {
 
     if ((clickedIndex == emptyIndex - 1) || (clickedIndex == emptyIndex + 1) ||
             (clickedIndex == emptyIndex - gridSize) || (clickedIndex == emptyIndex + gridSize)) {
-
       buttonList.get(emptyIndex).setText(clickedButton.getText());
       clickedButton.setText("");
       checkGameOrder();
@@ -73,30 +67,54 @@ public class Gui extends JFrame {
     winText.setVisible(false);
     for (int i = 0; i < buttonList.size() - 1; i++) {
       String buttonText = buttonList.get(i).getText();
-      if (Integer.parseInt(buttonText) < i - 1) {
+      if (buttonText.isEmpty()) {
+        continue;
+      }
+      if (Integer.parseInt(buttonText) != i + 1) {
         return;
       }
     }
 
-    checkGameWon();
+    checkGameWon(true);
   }
 
-  public void checkGameWon() {
-    winText.setVisible(true);
+  public void checkGameWon(boolean value) {
+    winText.setVisible(value);
   }
 
-  
+  private void shuffleBoard() {
+    if (buttonList.size() > 1) {
+      Collections.shuffle(buttonList.subList(0, buttonList.size() - 1));
+    }
+  }
+
+
+
+  private void newGame(ActionEvent e) {
+    checkGameWon(false);
+    this.remove(gamePanel);
+
+
+    JPanel gamePanel = createGameBoard();
+    this.add(gamePanel, BorderLayout.CENTER);
+
+    this.revalidate();
+    this.repaint();
+  }
+
+
 
 
 
   public Gui() {
 
     this.setLayout(new BorderLayout());
+    gamePanel = createGameBoard();
 
     JPanel EastPanel = new JPanel();
-    JPanel gamePanel = createGameBoard();
     EastPanel.setLayout(new BoxLayout(EastPanel, BoxLayout.Y_AXIS));
     newGameBtn.setAlignmentY(Component.CENTER_ALIGNMENT);
+    newGameBtn.addActionListener(this::newGame);
 
     EastPanel.add(winText);
     winText.setVisible(false);

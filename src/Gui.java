@@ -33,7 +33,7 @@ public class Gui extends JFrame {
 
   public JPanel createGameBoard() {
     gamePanel = new JPanel(new GridLayout(gridSize, gridSize));
-    shuffleBoard();
+    startOrder();
 
     for (JButton button : buttonList) {
       button.setPreferredSize(new Dimension(100, 100));
@@ -58,6 +58,7 @@ public class Gui extends JFrame {
     if ((clickedIndex == emptyIndex - 1) || (clickedIndex == emptyIndex + 1) ||
             (clickedIndex == emptyIndex - gridSize) || (clickedIndex == emptyIndex + gridSize)) {
       buttonList.get(emptyIndex).setText(clickedButton.getText());
+
       clickedButton.setText("");
       checkGameOrder();
     }
@@ -91,15 +92,31 @@ public class Gui extends JFrame {
     }
   }
 
+  private void startOrder() {
+    for (int i = 0; i < buttonList.size() - 1; i++) {
+      buttonList.get(i).setText(String.valueOf(i + 1));
+    }
+
+    buttonList.get(buttonList.size() - 6).setText("");
+    buttonList.get(buttonList.size() - 2).setText("11");
+    buttonList.get(buttonList.size() - 1).setText("14");
+
+  }
+
 
 
   private void newGame(ActionEvent e) {
     checkGameWon(false);
-    this.remove(gamePanel);
 
+    shuffleBoard();
 
-    JPanel gamePanel = createGameBoard();
+    gamePanel.removeAll(); // Remove all components from the panel
+    for (JButton button : buttonList) {
+      gamePanel.add(button);
+    }
+
     this.add(gamePanel, BorderLayout.CENTER);
+
 
     this.revalidate();
     this.repaint();
@@ -112,6 +129,8 @@ public class Gui extends JFrame {
   public Gui() {
 
     this.setLayout(new BorderLayout());
+
+    startOrder();
     gamePanel = createGameBoard();
 
     JPanel EastPanel = new JPanel();
@@ -126,7 +145,7 @@ public class Gui extends JFrame {
     this.add(EastPanel, BorderLayout.EAST);
     this.add(gamePanel, BorderLayout.CENTER);
 
-    // Make sure this isn't resetting the layout
+
     this.pack();
     this.setLocationRelativeTo(null);
     this.setVisible(true); // Should be called after all components are added
